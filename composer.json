@@ -1,0 +1,20 @@
+{
+    "name": "grantlucas/photo_essays",
+    "require": {
+        "symfony/console": "^3.0"
+    },
+    "authors": [
+        {
+            "name": "Grant Lucas",
+            "email": "contact@grantlucas.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^5.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fiesta\\": ["src/", "tests/"]
+        }
+    }
+}
