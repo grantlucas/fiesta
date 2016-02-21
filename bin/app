@@ -9,5 +9,6 @@ use Symfony\Component\Console\Application as ConsoleApplication;
 $app = new ConsoleApplication("Fiesta", "0.1");
 
 // Add commands
+$app->add(new Fiesta\Command\BuildCommand());
 
 $app->run();
