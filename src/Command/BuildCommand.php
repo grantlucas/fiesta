@@ -29,7 +29,7 @@ class BuildCommand extends Command
         $source = $input->getArgument('source');
         $destination = $input->getArgument('destination');
 
-        $output->writeln('Build that site');
+        $output->writeln('Building Site');
         $output->writeln('Source: ' . $source);
         $output->writeln('Destination: ' . $destination);
     }
