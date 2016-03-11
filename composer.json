@@ -1,7 +1,8 @@
 {
     "name": "grantlucas/photo_essays",
     "require": {
-        "symfony/console": "^3.0.0"
+        "symfony/console": "^3.0.0",
+        "crysalead/dir": "^2.0"
     },
     "authors": [
         {

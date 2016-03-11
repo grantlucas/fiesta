@@ -20,9 +20,9 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         $command = $application->find('build');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
-        ));
+        ]);
     }
 
     /**
@@ -38,10 +38,10 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         $command = $application->find('build');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'source' => '/tmp',
-        ));
+        ]);
     }
 
     /**
@@ -57,10 +57,10 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         $command = $application->find('build');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'destination' => '/tmp',
-        ));
+        ]);
     }
 
     /**
@@ -73,11 +73,11 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         $command = $application->find('build');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'source' => '/tmp/1',
             'destination' => '/tmp/2',
-        ));
+        ]);
 
         $this->assertRegExp("/Building Site/", $commandTester->getDisplay());
     }

@@ -4,9 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c7f869296dcaf7a0cbec3978486a258d",
-    "content-hash": "20fc5796808bd69e580dc889aab55ef9",
+    "hash": "4393bc85898473dc35b5199f0808dd37",
+    "content-hash": "50d04a550d8865704a60fb39dee9c63e",
     "packages": [
+        {
+            "name": "crysalead/dir",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/crysalead/dir.git",
+                "reference": "b9a36e314e91242fc51815cd7d959bb84dfacd39"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/crysalead/dir/zipball/b9a36e314e91242fc51815cd7d959bb84dfacd39",
+                "reference": "b9a36e314e91242fc51815cd7d959bb84dfacd39",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "crysalead/kahlan": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Lead\\Dir\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Recursive directory scanner to locate directories and/or files in a file system",
+            "keywords": [
+                "Directory Scanner",
+                "directory",
+                "file",
+                "file system"
+            ],
+            "time": "2015-12-06 03:06:55"
+        },
         {
             "name": "symfony/console",
             "version": "v3.0.2",
