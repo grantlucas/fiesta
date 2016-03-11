@@ -10,6 +10,4 @@ $app = new ConsoleApplication("Fiesta", "0.1");
 
 // Add commands
 
-$app->add(new Fiesta\Command\TestCommand());
-
 $app->run();
