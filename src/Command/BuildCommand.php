@@ -8,6 +8,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use Fiesta\Source;
+
 class BuildCommand extends Command
 {
     protected function configure()
@@ -26,11 +28,11 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $source = $input->getArgument('source');
+        $source = new Source($input->getArgument('source'));
         $destination = $input->getArgument('destination');
 
         $output->writeln('Building Site');
-        $output->writeln('Source: ' . $source);
-        $output->writeln('Destination: ' . $destination);
+        $output->writeln('Source:' . $source->getDir());
+
     }
 }

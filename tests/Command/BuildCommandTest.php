@@ -75,7 +75,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'source' => '/tmp/1',
+            'source' => __DIR__ . '/../files/source',
             'destination' => '/tmp/2',
         ]);
 

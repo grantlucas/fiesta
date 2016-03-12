@@ -15,6 +15,9 @@ class Source
      */
     public function __construct($dir)
     {
+        // Make the path absolute
+        $dir = $this->makePathAbsolute($dir);
+
         // Test if the directory exists and is readable
         if (is_dir($dir) && is_readable($dir)) {
             $this->dir = $dir;
@@ -49,5 +52,22 @@ class Source
         ]);
 
         return $files;
+    }
+
+    /**
+     * Make Path Absolute
+     *
+     * @param string $path
+     *
+     * @return string Full absolute path
+     */
+    protected function makePathAbsolute($path)
+    {
+        if (substr($path, 0, 1) != "/") {
+            // Make the string absolute
+            $path = getcwd() . "/" . $path;
+        }
+
+        return realpath($path);
     }
 }

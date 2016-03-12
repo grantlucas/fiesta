@@ -32,10 +32,20 @@ class SourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test file retrieval
+     * Test relative path
      *
-     * @TODO: Write/sketch out the workflow for how we move through directories, copying as we go
-     * @depends testConstruct
+     * Test to ensure that relative paths get turned into absolute paths
+     */
+    public function testRelativePath()
+    {
+        // Relative to the root folder where tests are run from
+        $source = new Source('tests/files/source');
+
+        $this->assertEquals(realpath(__DIR__ . '/files/source'), realpath($source->getDir()));
+    }
+
+    /**
+     * Test file retrieval
      */
     public function testGetFiles()
     {
