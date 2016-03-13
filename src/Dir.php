@@ -17,14 +17,13 @@ class Dir
     public function __construct($dir, $requireExists = false)
     {
         // Make the path absolute
-        $dir = $this->makePathAbsolute($dir);
+        $this->dir = $this->makePathAbsolute($dir);
 
         // Test if the directory exists and is readable
-        if ($requireExists && (!is_dir($dir) || !is_readable($dir))) {
+        if ($requireExists && (!$this->exists() || !$this->isReadable())) {
             throw new \RuntimeException("Directory must exist and be readable");
         }
 
-        $this->dir = $dir;
     }
 
     /**
@@ -53,6 +52,61 @@ class Dir
         ]);
 
         return $files;
+    }
+
+    /**
+     * Test if the current directory exists
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        return is_dir($this->dir);
+    }
+
+    /**
+     * Test if the current directory is readable
+     *
+     * @return bool
+     */
+    public function isReadable()
+    {
+        return is_readable($this->dir);
+    }
+
+    /**
+     * Test if the current directory is writable
+     *
+     * @return bool
+     */
+    public function isWritable()
+    {
+         return is_writable($this->dir);
+    }
+
+    /**
+     * Create directory
+     */
+    public function create()
+    {
+        // Create directory only accessible by the current user
+        $created = mkdir($this->dir, 0700, true);
+
+        if (!$created) {
+            throw new \RuntimeException("Unable to create directory at: " . $this->getDir());
+        }
+    }
+
+    /**
+     * Delete Directory
+     */
+    public function delete()
+    {
+        $deleted = rmdir($this->dir);
+
+        if (!$deleted) {
+            throw new \RuntimeException("Unable to delete directory at: " . $this->getDir());
+        }
     }
 
     /**

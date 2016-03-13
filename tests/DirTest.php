@@ -62,11 +62,28 @@ class DirTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotEmpty($files);
 
-        // Assert the various files and direcotries knowing their sort order
+        // Assert the various files and directories knowing their sort order
         $this->assertEquals("Boathouse in Winter.jpeg", $this->getFileName($files[0]));
         $this->assertTrue(is_dir($files[1]));
         $this->assertEquals("Ski Lodge.jpeg", $this->getFileName($files[2]));
         $this->assertTrue(is_dir($files[3]));
+    }
+
+    /**
+     * Test the creation of a missing folder
+     */
+    public function testDirectoryCreation()
+    {
+        $directory = new Dir('tests/files/does_not_exist');
+
+        $this->assertFalse($directory->exists());
+
+        $directory->create();
+
+        $this->assertTrue($directory->exists());
+
+        // Cleanup and delete the created directory
+        $directory->delete();
     }
 
     /**

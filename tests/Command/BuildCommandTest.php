@@ -72,13 +72,26 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
         $application->add(new BuildCommand());
 
         $command = $application->find('build');
+
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream('y\\n'));
+
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'source' => __DIR__ . '/../files/source',
+            'source' => 'tests/files/source',
             'destination' => '/tmp/2',
         ]);
 
         $this->assertRegExp("/Building Site/", $commandTester->getDisplay());
+    }
+
+    protected function getInputStream($input)
+    {
+        $stream = fopen('php://memory', 'r+', false);
+        fputs($stream, $input);
+        rewind($stream);
+
+        return $stream;
     }
 }
