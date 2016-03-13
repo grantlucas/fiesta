@@ -2,9 +2,9 @@
 
 namespace Fiesta;
 
-class SourceTest extends \PHPUnit_Framework_TestCase
+class DirTest extends \PHPUnit_Framework_TestCase
 {
-    protected $sourceDir = __DIR__ . '/files/source';
+    protected $directory = __DIR__ . '/files/source';
 
     /**
      * Test directory validation
@@ -14,7 +14,18 @@ class SourceTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructDirValidation()
     {
-        $source = new Source(__DIR__ . '/does_not_exist');
+        $directory = new Dir('does_not_exist', true);
+    }
+
+    /**
+     * Test directory validation ignoring
+     */
+    public function testConstructDirIgnoreValidation()
+    {
+        $directory = new Dir('does_not_exist');
+
+        // Ensure the directory was set
+        $this->assertNotEmpty($directory->getDir());
     }
 
     /**
@@ -22,13 +33,10 @@ class SourceTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstruct()
     {
-        $source = new Source($this->sourceDir);
+        $directory = new Dir($this->directory);
 
         // Ensure the directory was set
-        $this->assertEquals($this->sourceDir, $source->getDir());
-
-        // Store the source to later usage
-        $this->source = $source;
+        $this->assertEquals($this->directory, $directory->getDir());
     }
 
     /**
@@ -39,9 +47,9 @@ class SourceTest extends \PHPUnit_Framework_TestCase
     public function testRelativePath()
     {
         // Relative to the root folder where tests are run from
-        $source = new Source('tests/files/source');
+        $directory = new Dir('tests/files/source');
 
-        $this->assertEquals(realpath(__DIR__ . '/files/source'), realpath($source->getDir()));
+        $this->assertEquals(__DIR__ . '/files/source', $directory->getDir());
     }
 
     /**
@@ -49,8 +57,8 @@ class SourceTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFiles()
     {
-        $source = new Source($this->sourceDir);
-        $files = $source->getFiles();
+        $directory = new Dir($this->directory);
+        $files = $directory->getFiles();
 
         $this->assertNotEmpty($files);
 

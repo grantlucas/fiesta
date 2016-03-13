@@ -2,9 +2,9 @@
 
 namespace Fiesta;
 
-use Lead\Dir\Dir;
+use Lead\Dir\Dir as DirHelper;
 
-class Source
+class Dir
 {
     protected $dir;
 
@@ -12,18 +12,19 @@ class Source
      * Constructor
      *
      * @param string $dir Directory to use for the source
+     * @param bool $requireExists Boolean for whether or not to check if the directory exists already
      */
-    public function __construct($dir)
+    public function __construct($dir, $requireExists = false)
     {
         // Make the path absolute
         $dir = $this->makePathAbsolute($dir);
 
         // Test if the directory exists and is readable
-        if (is_dir($dir) && is_readable($dir)) {
-            $this->dir = $dir;
-        } else {
+        if ($requireExists && (!is_dir($dir) || !is_readable($dir))) {
             throw new \RuntimeException("Directory must exist and be readable");
         }
+
+        $this->dir = $dir;
     }
 
     /**
@@ -44,7 +45,7 @@ class Source
     public function getFiles()
     {
 
-        $files = Dir::scan($this->dir, [
+        $files = DirHelper::scan($this->dir, [
             'type' => ['file', 'dir', 'readable'],
             'exclude' => ['*.DS_Store'],
             'skipDots' => true,
@@ -68,6 +69,6 @@ class Source
             $path = getcwd() . "/" . $path;
         }
 
-        return realpath($path);
+        return $path;
     }
 }

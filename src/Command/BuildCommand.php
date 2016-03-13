@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use Fiesta\Source;
+use Fiesta\Dir;
 
 class BuildCommand extends Command
 {
@@ -28,7 +28,7 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $source = new Source($input->getArgument('source'));
+        $source = new Dir($input->getArgument('source'), true);
         $destination = $input->getArgument('destination');
 
         $output->writeln('Building Site');
