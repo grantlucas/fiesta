@@ -45,7 +45,7 @@ class Dir
     {
 
         $files = DirHelper::scan($this->dir, [
-            'type' => ['file', 'dir', 'readable'],
+            'type' => ['file'],
             'exclude' => ['*.DS_Store'],
             'skipDots' => true,
             'recursive' => false,
