@@ -25,7 +25,7 @@ class DirTest extends \PHPUnit_Framework_TestCase
         $directory = new Dir('does_not_exist');
 
         // Ensure the directory was set
-        $this->assertNotEmpty($directory->getDir());
+        $this->assertNotEmpty($directory->getPath());
     }
 
     /**
@@ -36,7 +36,7 @@ class DirTest extends \PHPUnit_Framework_TestCase
         $directory = new Dir($this->directory);
 
         // Ensure the directory was set
-        $this->assertEquals($this->directory, $directory->getDir());
+        $this->assertEquals($this->directory, $directory->getPath());
     }
 
     /**
@@ -49,7 +49,7 @@ class DirTest extends \PHPUnit_Framework_TestCase
         // Relative to the root folder where tests are run from
         $directory = new Dir('tests/files/source');
 
-        $this->assertEquals(__DIR__ . '/files/source', $directory->getDir());
+        $this->assertEquals(__DIR__ . '/files/source', $directory->getPath());
     }
 
     /**

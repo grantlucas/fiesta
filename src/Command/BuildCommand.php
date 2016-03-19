@@ -33,8 +33,8 @@ class BuildCommand extends Command
         $destination = new Dir($input->getArgument('destination'));
 
         $output->writeln('Building Site');
-        $output->writeln('Source:' . $source->getDir());
-        $output->writeln('Destination:' . $destination->getDir());
+        $output->writeln('Source:' . $source->getPath());
+        $output->writeln('Destination:' . $destination->getPath());
 
         // Prompt user for confirmation to continue
         $questionHelper = $this->getHelper('question');
@@ -65,6 +65,8 @@ class BuildCommand extends Command
         $files = $source->getFiles();
 
         //TODO: Set up destination's images folder
+        $destinationPath = $destination->getPath();
+        $imagesFolder = new Dir($destinationPath . '/images')->create();
 
         // Store which files have been processed
         $processedFiles = array();

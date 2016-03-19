@@ -13,6 +13,8 @@ class Dir
      *
      * @param string $dir Directory to use for the source
      * @param bool $requireExists Boolean for whether or not to check if the directory exists already
+     *
+     * @return Dir Instance of this directory
      */
     public function __construct($dir, $requireExists = false)
     {
@@ -24,14 +26,15 @@ class Dir
             throw new \RuntimeException("Directory must exist and be readable");
         }
 
+        return $this;
     }
 
     /**
-     * Get Directory
+     * Get Path
      *
-     * @return string Directory path for this object
+     * @return string Path for this object
      */
-    public function getDir()
+    public function getPath()
     {
         return $this->dir;
     }
