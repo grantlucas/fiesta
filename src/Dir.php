@@ -46,7 +46,6 @@ class Dir
      */
     public function getFiles()
     {
-
         $files = DirHelper::scan($this->dir, [
             'type' => ['file'],
             'exclude' => ['*.DS_Store'],
@@ -93,10 +92,13 @@ class Dir
     public function create()
     {
         // Create directory only accessible by the current user
-        $created = mkdir($this->dir, 0700, true);
+        DirHelper::make($this->dir, [
+            'mode' => 0700,
+            'recursive' => true,
+        ]);
 
-        if (!$created) {
-            throw new \RuntimeException("Unable to create directory at: " . $this->getDir());
+        if (!is_dir($this->dir)) {
+            throw new \RuntimeException("Unable to create directory at: " . $this->dir);
         }
     }
 
@@ -105,10 +107,11 @@ class Dir
      */
     public function delete()
     {
-        $deleted = rmdir($this->dir);
+        DirHelper::remove($this->dir);
 
-        if (!$deleted) {
-            throw new \RuntimeException("Unable to delete directory at: " . $this->getDir());
+        // Check if it still exists
+        if (is_dir($this->dir)) {
+            throw new \RuntimeException("Unable to delete directory at: " . $this->dir);
         }
     }
 

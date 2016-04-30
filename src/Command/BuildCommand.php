@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Lead\Dir\Dir as DirHelper;
 
 use Fiesta\Dir;
 
@@ -32,13 +33,14 @@ class BuildCommand extends Command
         $source = new Dir($input->getArgument('source'), true);
         $destination = new Dir($input->getArgument('destination'));
 
-        $output->writeln('Building Site');
+        $output->writeln('<info>Building Site</info>');
+        $output->writeln('');
         $output->writeln('Source:' . $source->getPath());
         $output->writeln('Destination:' . $destination->getPath());
 
         // Prompt user for confirmation to continue
         $questionHelper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('The folling command will overwrite the destination folder. Are you sure you want to continue?', false);
+        $question = new ConfirmationQuestion('<question>The folling command will overwrite the destination folder. Are you sure you want to continue?</question>', false);
 
         $output->writeln('');
 
@@ -46,7 +48,7 @@ class BuildCommand extends Command
             return;
         }
 
-        $output->writeln('Continuing with Build command');
+        $output->writeln('<info>Continuing with Build command</info>');
 
         // Delete the destination to clear it
         if ($destination->exists()) {
@@ -61,32 +63,44 @@ class BuildCommand extends Command
             throw new \RuntimeException("Destination directory is not writable");
         }
 
-        // Get the list of files from the source folder
-        $files = $source->getFiles();
+        // Copy entire source to destination with callbacks
+        //TODO: Get it to ignore .DS_Store files etc: https://github.com/crysalead/dir/issues/1
+        DirHelper::copy($source->getPath(), $destination->getPath(), array(
+            'mode' => 0700,
+            'childsOnly' => true,
+            'recursive' => true,
+            'fileCopiedCallback' => 'Fiesta\Command\BuildCommand::fileCopied',
+        ));
 
-        //TODO: Set up destination's images folder
-        $destinationPath = $destination->getPath();
-        $imagesFolder = new Dir($destinationPath . '/images')->create();
+        //TODO: Resize and optimize the copied file on callback if it's an image
 
-        // Store which files have been processed
-        $processedFiles = array();
+        //TODO: ********** The following can be made generic, passing in the current folder we're processing **********
+        // Get the "current" directory
+        $curDirectory = new Dir($destination->getPath());
 
-        // Loop through files and process them
+        //TODO: Loop through files in first level of the destination folder
+        $files = $curDirectory->getFiles();
+
+        $processedFiles = [];
+
         foreach ($files as $file) {
-            var_dump($file);
-
-            // Store that this file was processed
-            $processedFiles[] = $file;
-
+            echo "\nFile: $file";
             //TODO: Look for coutnerpart file (markdown text)
             //TODO: If counterpart found, add it to the processed files list to prevent processing it again
             //TODO: Pass the files through Twig partial template which renders the list item
             //TODO: Store the rendered HTML to later passing to page template
-            //TODO: Copy the image into the original images folder
-            //TODO: Resize the image and copy to small/medium/large images folders
-
+            //TODO: Remove the file or counterpart file if it was not an image
         }
 
-        //TODO: Take list of files (HTML) and pass to page template file
+        //TODO: In folder, create the index.html file rendering the final TWIG output
+        //TODO: THE HARD PART: After we'de done with this folder, get all child folders and perform the same. This should be recursive.
+    }
+
+    /**
+     * File copied callback
+     */
+    public static function fileCopied($path)
+    {
+        echo "\nFile Copied: $path";
     }
 }
