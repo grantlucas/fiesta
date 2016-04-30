@@ -69,10 +69,9 @@ class BuildCommand extends Command
             'mode' => 0700,
             'childsOnly' => true,
             'recursive' => true,
-            'fileCopiedCallback' => 'Fiesta\Command\BuildCommand::fileCopied',
         ));
 
-        //TODO: Resize and optimize the copied file on callback if it's an image
+        //TODO: Use Scan to get all image files and optimize them
 
         //TODO: ********** The following can be made generic, passing in the current folder we're processing **********
         // Get the "current" directory
@@ -96,11 +95,4 @@ class BuildCommand extends Command
         //TODO: THE HARD PART: After we'de done with this folder, get all child folders and perform the same. This should be recursive.
     }
 
-    /**
-     * File copied callback
-     */
-    public static function fileCopied($path)
-    {
-        echo "\nFile Copied: $path";
-    }
 }

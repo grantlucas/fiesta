@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "aa1ab0dcccdf0a6fbb30ac2906019805",
-    "content-hash": "4ac079656c8ce8e3950a3e5b84452237",
+    "hash": "1c3d52140de019bd1f178f20622d0bde",
+    "content-hash": "be567d47b099f17cdde07de653fa2f1e",
     "packages": [
         {
             "name": "crysalead/dir",
-            "version": "dev-feature/CopyCallbacks",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/grantlucas/dir.git",
-                "reference": "c3c7d52fccb2a481fddb7f5dfc2414ceabd1e1d0"
+                "url": "https://github.com/crysalead/dir.git",
+                "reference": "b9a36e314e91242fc51815cd7d959bb84dfacd39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/grantlucas/dir/zipball/c3c7d52fccb2a481fddb7f5dfc2414ceabd1e1d0",
-                "reference": "c3c7d52fccb2a481fddb7f5dfc2414ceabd1e1d0",
+                "url": "https://api.github.com/repos/crysalead/dir/zipball/b9a36e314e91242fc51815cd7d959bb84dfacd39",
+                "reference": "b9a36e314e91242fc51815cd7d959bb84dfacd39",
                 "shasum": ""
             },
             "require": {
@@ -33,25 +33,18 @@
                     "Lead\\Dir\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Lead\\Dir\\Spec\\": "spec/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "Recursive directory scanner to locate directories and/or files in a file system",
             "keywords": [
-                "Directory",
                 "Directory Scanner",
-                "File",
-                "File System"
+                "directory",
+                "file",
+                "file system"
             ],
-            "support": {
-                "source": "https://github.com/grantlucas/dir/tree/feature/CopyCallbacks"
-            },
-            "time": "2016-04-30 16:59:32"
+            "time": "2015-12-06 03:06:55"
         },
         {
             "name": "symfony/console",
@@ -230,16 +223,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.5.0",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "e3abefcd7f106677fd352cd7c187d6c969aa9ddc"
+                "reference": "a8773992b362b58498eed24bf85005f363c34771"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/e3abefcd7f106677fd352cd7c187d6c969aa9ddc",
-                "reference": "e3abefcd7f106677fd352cd7c187d6c969aa9ddc",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/a8773992b362b58498eed24bf85005f363c34771",
+                "reference": "a8773992b362b58498eed24bf85005f363c34771",
                 "shasum": ""
             },
             "require": {
@@ -268,7 +261,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2015-11-07 22:20:37"
+            "time": "2015-11-20 12:04:31"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -1317,9 +1310,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "crysalead/dir": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
