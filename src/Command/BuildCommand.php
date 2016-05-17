@@ -77,14 +77,17 @@ class BuildCommand extends Command
         // Get the "current" directory
         $curDirectory = new Dir($destination->getPath());
 
-        //TODO: Loop through files in first level of the destination folder
+        // Get list of files to loop through
         $files = $curDirectory->getFiles();
 
-        $processedFiles = [];
+        //TODO: Only proceed if there were files in the folder
 
+        // Loop through the files
         foreach ($files as $file) {
             echo "\nFile: $file";
-            //TODO: Look for coutnerpart file (markdown text)
+            var_dump(pathinfo($file));
+
+            //TODO: Look for counterpart file (markdown text)
             //TODO: If counterpart found, add it to the processed files list to prevent processing it again
             //TODO: Pass the files through Twig partial template which renders the list item
             //TODO: Store the rendered HTML to later passing to page template
