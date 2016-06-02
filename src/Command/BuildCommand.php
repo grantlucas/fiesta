@@ -80,18 +80,44 @@ class BuildCommand extends Command
         // Get list of files to loop through
         $files = $curDirectory->getFiles();
 
+        // Store which files were processed already
+        $processedFiles = array();
+
         //TODO: Only proceed if there were files in the folder
 
         // Loop through the files
         foreach ($files as $file) {
             echo "\nFile: $file";
-            var_dump(pathinfo($file));
 
-            //TODO: Look for counterpart file (markdown text)
-            //TODO: If counterpart found, add it to the processed files list to prevent processing it again
-            //TODO: Pass the files through Twig partial template which renders the list item
-            //TODO: Store the rendered HTML to later passing to page template
-            //TODO: Remove the file or counterpart file if it was not an image
+            // Only proceed if we haven't dealt with this file in some way already
+            if (!in_array($file, $processedFiles)) {
+                var_dump(pathinfo($file));
+                $fileInfo = pathinfo($file);
+
+                $currentIsImage = false;
+                if (in_array($fileInfo['extension'], array('jpeg', 'jpg', 'png', 'gif'))) {
+                    $currentIsImage = true;
+                }
+
+                /****** Look for counterpart file (markdown text). For now, only check for ".md" files. ******/
+                //TODO: Add support for multiple markdown extensions
+
+                // Build the expected Markdown path based on original file name
+                $markdownFilePath = $fileInfo['dirname'] . '/' . $fileInfo['filename'] . '.md';
+                $counterpartFile = $currentIsImage && file_exists($markdownFilePath) ? $markdownFilePath : false;
+
+                // If counterpart found, add it to the processed files list to prevent processing it again
+                if ($counterpartFile) {
+                    $processedFiles[] = $counterpartFile;
+                }
+
+                //TODO: Pass the files through Twig partial template which renders the list item
+                //TODO: Store the rendered HTML to later passing to page template
+                //TODO: Remove the file or counterpart file if it was not an image
+
+                // Store this file in the processed files array to ensure it's never touched again
+                $processedFiles[] = $file;
+            }
         }
 
         //TODO: In folder, create the index.html file rendering the final TWIG output
