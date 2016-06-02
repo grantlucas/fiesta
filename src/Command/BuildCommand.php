@@ -99,15 +99,27 @@ class BuildCommand extends Command
                     $currentIsImage = true;
                 }
 
-                /****** Look for counterpart file (markdown text). For now, only check for ".md" files. ******/
-                //TODO: Add support for multiple markdown extensions
+                /****** Look for counterpart file (markdown text). ******/
+                $markdownExtensions = array(
+                    'md',
+                    'markdown',
+                    'mdown',
+                    'mkdn',
+                    'mdwn',
+                    'mkd',
+                );
 
-                // Build the expected Markdown path based on original file name
-                $markdownFilePath = $fileInfo['dirname'] . '/' . $fileInfo['filename'] . '.md';
-                $counterpartFile = $currentIsImage && file_exists($markdownFilePath) ? $markdownFilePath : false;
+                foreach ($markdownExtensions as $markdownExtension) {
+                    // Only check if we haven't found one yet
+                    if (empty($counterpartFile)) {
+                        // Build the expected Markdown path based on original file name
+                        $markdownFilePath = $fileInfo['dirname'] . '/' . $fileInfo['filename'] . '.' . $markdownExtension;
+                        $counterpartFile = $currentIsImage && file_exists($markdownFilePath) ? $markdownFilePath : false;
+                    }
+                }
 
                 // If counterpart found, add it to the processed files list to prevent processing it again
-                if ($counterpartFile) {
+                if (!empty($counterpartFile)) {
                     $processedFiles[] = $counterpartFile;
                 }
 
