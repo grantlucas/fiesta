@@ -9,11 +9,21 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Lead\Dir\Dir as DirHelper;
+use League\Container\Container as ServiceContainer;
 
 use Fiesta\Dir;
 
 class BuildCommand extends Command
 {
+    protected $service;
+
+    public function __construct(ServiceContainer $serviceContainer)
+    {
+        parent::__construct();
+
+        $this->service = $serviceContainer;
+    }
+
     protected function configure()
     {
         $this->setName('build')
@@ -124,6 +134,8 @@ class BuildCommand extends Command
                 }
 
                 //TODO: Pass the files through Twig partial template which renders the list item
+                $twig = $this->service->get('twig');
+
                 //TODO: Store the rendered HTML to later passing to page template
                 //TODO: Remove the file or counterpart file if it was not an image
 

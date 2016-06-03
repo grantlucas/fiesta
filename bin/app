@@ -4,11 +4,24 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use Symfony\Component\Console\Application as ConsoleApplication;
+use League\Container\Container as ServiceContainer;
 
 // Create application
 $app = new ConsoleApplication("Fiesta", "0.1");
 
-// Add commands
-$app->add(new Fiesta\Command\BuildCommand());
+// Build the service container
+$container = new ServiceContainer();
 
+// Add Twig as a serivce
+$twigLoader = new Twig_Loader_Filesystem(__DIR__ . '/../src/Twig/Templates');
+$container->add('twig', 'Twig_Environment')
+  ->withArgument($twigLoader)
+  ->withArgument(array(
+    'cache' => __DIR__ . '/../src/Twig/Cache',
+  ));
+
+// Add commands
+$app->add(new Fiesta\Command\BuildCommand($container));
+
+// Run the App
 $app->run();
