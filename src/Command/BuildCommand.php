@@ -90,8 +90,11 @@ class BuildCommand extends Command
         // Get list of files to loop through
         $files = $curDirectory->getFiles();
 
-        // Store which files were processed already
+        // Store processed file information for rendering
         $processedFiles = array();
+
+        // Store which files to ignore in processing
+        $ignoredFiles = array();
 
         //TODO: Only proceed if there were files in the folder
 
@@ -99,8 +102,8 @@ class BuildCommand extends Command
         foreach ($files as $file) {
             echo "\nFile: $file";
 
-            // Only proceed if we haven't dealt with this file in some way already
-            if (!in_array($file, $processedFiles)) {
+            // Only proceed if this file isn't ignored
+            if (!in_array($file, $ignoredFiles)) {
                 var_dump(pathinfo($file));
                 $fileInfo = pathinfo($file);
 
@@ -110,6 +113,7 @@ class BuildCommand extends Command
                 }
 
                 /****** Look for counterpart file (markdown text). ******/
+                $counterpartFile = null;
                 $markdownExtensions = array(
                     'md',
                     'markdown',
@@ -128,23 +132,36 @@ class BuildCommand extends Command
                     }
                 }
 
-                // If counterpart found, add it to the processed files list to prevent processing it again
+                // If counterpart found, add it to the ignored files list to prevent processing it again
                 if (!empty($counterpartFile)) {
-                    $processedFiles[] = $counterpartFile;
+                    $ignoredFiles[] = $counterpartFile;
                 }
 
-                //TODO: Pass the files through Twig partial template which renders the list item
-                $twig = $this->service->get('twig');
+                // Add the record to the final array which is eventually passed to Twig
+                $processedFiles[$file] = array(
+                    'image' => array(
+                        'src' => $file,
+                        'name' => $fileInfo['filename'],
+                    ),
+                );
 
-                //TODO: Store the rendered HTML to later passing to page template
-                //TODO: Remove the file or counterpart file if it was not an image
+                // If there was a counterpart file, add it to the final array
+                if (!empty($counterpartFile)) {
+                    var_dump($counterpartFile);
+                    $fileContents = file_get_contents($counterpartFile);
+                    // Only add the text if the file wasn't empty
+                    if ($fileContents != '') {
+                        $processedFiles[$file]['text'] = $fileContents;
+                    }
+                }
 
-                // Store this file in the processed files array to ensure it's never touched again
-                $processedFiles[] = $file;
+                //TODO: Set up a Twig markdown/commonmark filter to process the image text (http://commonmark.thephpleague.com/):w
             }
         }
 
-        //TODO: In folder, create the index.html file rendering the final TWIG output
+        print_r($processedFiles);
+
+        //TODO: In folder, create the index.html file rendering the final TWIG output passing processed array to it
         //TODO: THE HARD PART: After we'de done with this folder, get all child folders and perform the same. This should be recursive.
     }
 
