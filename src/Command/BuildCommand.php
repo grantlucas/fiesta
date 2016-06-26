@@ -155,14 +155,13 @@ class BuildCommand extends Command
                     }
                 }
 
-                //TODO: Set up a Twig markdown/commonmark filter to process the image text (http://commonmark.thephpleague.com/)
                 //TODO: Remove markdown files
             }
         }
 
         print_r($processedFiles);
 
-        //TODO: Pass processed files to parent twig template to return HTML
+        // Load the template's base file
         $baseTemplate = $this->serviceManager->get('twig')->loadTemplate('base.html.twig');
 
         //TODO: Figure out a title
@@ -173,8 +172,11 @@ class BuildCommand extends Command
         ));
 
         print_r($baseHtml);
+        print_r($curDirectory->getPath());
 
-        //TODO: In folder, create the index.html file rendering the final TWIG output passing processed array to it
+        // Create the index.html file with the rendered HTML
+        file_put_contents($curDirectory->getPath() . '/index.html', $baseHtml);
+
         //TODO: THE HARD PART: After we'de done with this folder, get all child folders and perform the same. This should be recursive.
     }
 
