@@ -15,13 +15,13 @@ use Fiesta\Dir;
 
 class BuildCommand extends Command
 {
-    protected $service;
+    protected $serviceManager;
 
     public function __construct(ServiceContainer $serviceContainer)
     {
         parent::__construct();
 
-        $this->service = $serviceContainer;
+        $this->serviceManager = $serviceContainer;
     }
 
     protected function configure()
@@ -50,7 +50,7 @@ class BuildCommand extends Command
 
         // Prompt user for confirmation to continue
         $questionHelper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('<question>The folling command will overwrite the destination folder. Are you sure you want to continue?</question>', false);
+        $question = new ConfirmationQuestion('<question>The folling command will overwrite the destination folder. Are you sure you want to continue? (y/N)</question>', false);
 
         $output->writeln('');
 
@@ -155,11 +155,24 @@ class BuildCommand extends Command
                     }
                 }
 
-                //TODO: Set up a Twig markdown/commonmark filter to process the image text (http://commonmark.thephpleague.com/):w
+                //TODO: Set up a Twig markdown/commonmark filter to process the image text (http://commonmark.thephpleague.com/)
+                //TODO: Remove markdown files
             }
         }
 
         print_r($processedFiles);
+
+        //TODO: Pass processed files to parent twig template to return HTML
+        $baseTemplate = $this->serviceManager->get('twig')->loadTemplate('base.html.twig');
+
+        //TODO: Figure out a title
+        //TODO: Figure out description for page
+        //TODO: Pass in child menu
+        $baseHtml = $baseTemplate->render(array(
+            'files' => $processedFiles,
+        ));
+
+        print_r($baseHtml);
 
         //TODO: In folder, create the index.html file rendering the final TWIG output passing processed array to it
         //TODO: THE HARD PART: After we'de done with this folder, get all child folders and perform the same. This should be recursive.

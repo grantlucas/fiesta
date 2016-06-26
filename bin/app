@@ -5,6 +5,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Symfony\Component\Console\Application as ConsoleApplication;
 use League\Container\Container as ServiceContainer;
+use Aptoma\Twig\Extension\MarkdownExtension;
+use Aptoma\Twig\Extension\MarkdownEngine;
 
 // Create application
 $app = new ConsoleApplication("Fiesta", "0.1");
@@ -12,13 +14,24 @@ $app = new ConsoleApplication("Fiesta", "0.1");
 // Build the service container
 $container = new ServiceContainer();
 
-// Add Twig as a serivce
-$twigLoader = new Twig_Loader_Filesystem(__DIR__ . '/../src/Twig/Templates');
+//TODO: Make the template configurable
+// Set up Twig templace loader
+$twigLoader = new Twig_Loader_Filesystem(__DIR__ . '/../src/Twig/Templates/Primary');
+
+// Set up the Markdown engine to use PHP League's CommonMark
+$markdownEngine = new MarkdownEngine\PHPLeagueCommonMarkEngine();
+
+// Add twig as a service
 $container->add('twig', 'Twig_Environment')
   ->withArgument($twigLoader)
-  ->withArgument(array(
-    'cache' => __DIR__ . '/../src/Twig/Cache',
-  ));
+  //->withArgument(array(
+  //'cache' => __DIR__ . '/../src/Twig/Cache',
+  //))
+  ->withMethodCall('addExtension', array(
+    new MarkdownExtension($markdownEngine)
+  ))
+  ;
+
 
 // Add commands
 $app->add(new Fiesta\Command\BuildCommand($container));
