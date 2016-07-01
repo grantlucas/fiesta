@@ -1,0 +1,102 @@
+/****** Layout ******/
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  position: relative;
+  text-align: center;
+  margin: 0;
+}
+
+p {
+  margin: 1em 0;
+}
+
+.vertical-align {
+  display: block;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.wrapper {
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+article {
+  position: relative;
+  max-width: 100%;
+  margin: 0.5em 0;
+  clear: both;
+}
+
+article h1,
+article h2,
+article h3,
+article h4,
+article h5,
+article h6 {
+  text-align: center;
+}
+
+/****** Descriptions ******/
+.description {
+  margin: 0 auto;
+  padding: 0 50px;
+  text-align: justify;
+}
+
+/****** Images ******/
+.image img {
+  padding: 0 26px;
+  max-width: 100%;
+}
+
+.image-full {
+  padding-top: 3.5em;
+}
+
+.image-full img {
+  width: 100%;
+  height: auto;
+}
+
+.partial {
+  float: left;
+  overflow: hidden;
+  clear: none;
+}
+
+.right-60,
+.left-60 {
+  width: 60%;
+}
+
+.left-40,
+.right-40 {
+  width: 40%;
+}
+
+.left-40 .image img,
+.left-60 .image img {
+  padding-right: 0.5em;
+}
+
+.right-60 .image img,
+.right-40 .image img {
+  padding-left: 0.5em;
+}
+
+/****** Site Footer ******/
+#site_footer {
+  text-align: left;
+  border-top: 1px solid #ccc;
+  margin-top: 2em;
+  padding: 1em;
+}
