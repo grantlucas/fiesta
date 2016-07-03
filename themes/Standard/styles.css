@@ -81,6 +81,7 @@ p {
 
 .partial {
   float: left;
+  padding-bottom: 1em;
 }
 
 .right-60,
