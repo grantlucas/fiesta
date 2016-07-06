@@ -51,11 +51,6 @@ h1 {
   transform: translateY(-50%);
 }
 
-.wrapper {
-  margin: 0 auto;
-  max-width: 100%;
-}
-
 .row {
   position: relative;
   margin: 0 auto 6% auto;
