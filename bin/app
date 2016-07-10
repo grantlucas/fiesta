@@ -3,10 +3,8 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Symfony\Component\Console\Application as ConsoleApplication;
-
 // Create application
-$app = new ConsoleApplication("Fiesta", "0.1");
+$app = new Fiesta\Application('Fiesta', '0.1');
 
 // Add commands
 $app->add(new Fiesta\Command\BuildCommand());
