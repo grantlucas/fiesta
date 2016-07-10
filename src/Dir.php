@@ -3,6 +3,7 @@
 namespace Fiesta;
 
 use Lead\Dir\Dir as DirHelper;
+use Fiesta\Util;
 
 class Dir
 {
@@ -19,7 +20,7 @@ class Dir
     public function __construct($dir, $requireExists = false)
     {
         // Make the path absolute
-        $this->dir = $this->makePathAbsolute($dir);
+        $this->dir = Util::makePathAbsolute($dir);
 
         // Test if the directory exists and is readable
         if ($requireExists && (!$this->exists() || !$this->isReadable())) {
@@ -113,22 +114,5 @@ class Dir
         if (is_dir($this->dir)) {
             throw new \RuntimeException("Unable to delete directory at: " . $this->dir);
         }
-    }
-
-    /**
-     * Make Path Absolute
-     *
-     * @param string $path
-     *
-     * @return string Full absolute path
-     */
-    protected function makePathAbsolute($path)
-    {
-        if (substr($path, 0, 1) != "/") {
-            // Make the string absolute
-            $path = getcwd() . "/" . $path;
-        }
-
-        return $path;
     }
 }
