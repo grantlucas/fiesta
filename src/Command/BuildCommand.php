@@ -46,7 +46,6 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
         //TODO: set up manifest file for themes for what files should be copied into the folder, like the styles and JS
 
         // Set up the theme directory
@@ -56,7 +55,6 @@ class BuildCommand extends Command
         if (!$themeDirectory) {
             $themeDirectory = Util::appendToPath($this->getApplication()->getBaseDir(), 'themes');
         }
-        var_dump($themeDirectory);
 
         // Build the specific theme directory using the theme name
         $theme = new Dir(Util::appendToPath($themeDirectory, $input->getOption('theme')));
@@ -66,24 +64,23 @@ class BuildCommand extends Command
             throw new \RuntimeException("The chosen Theme folder (" . $theme->getPath() . ") doesn't exist or isn't readable");
         }
 
-        var_dump($theme);
+        // Validate the needed base Twig file exists and is readable
+        $twigBaseFile = 'base.html.twig';
+        $twigBaseFilePath = Util::appendToPath($theme->getPath(), $twigBaseFile);
+        if (!is_file($twigBaseFilePath) || !is_readable($twigBaseFilePath)) {
+            throw new \RuntimeException("The required Twig base file (" . $twigBaseFile . "), does not exist in the theme folder or is not readable.");
+        }
 
-        //TODO: Validate theme folder is a directory
-        //TODO: Validate the needed base Twig files are there
 
-        // Set up Twig template loader
-        $twigLoader = new Twig_Loader_Filesystem(__DIR__ . '/../Twig/Templates/Primary');
+        // Set up Twig template loader using the theme folder
+        $twigLoader = new Twig_Loader_Filesystem($theme->getPath());
 
-
-        // Set up the Markdown engine to use PHP League's CommonMark
-        $markdownEngine = new MarkdownEngine\PHPLeagueCommonMarkEngine();
-
+        // Set up the twig environment using the theme's folder
         $twig = new Twig_Environment($twigLoader);
         //TODO: Add caching and way to clear cache
 
         // Add markdown extension
-        $twig->addExtension(new MarkdownExtension($markdownEngine));
-
+        $twig->addExtension(new MarkdownExtension(new MarkdownEngine\PHPLeagueCommonMarkEngine()));
 
 
 
@@ -212,7 +209,7 @@ class BuildCommand extends Command
         print_r($processedFiles);
 
         // Load the template's base file
-        $baseTemplate = $twig->loadTemplate('base.html.twig');
+        $baseTemplate = $twig->loadTemplate($twigBaseFile);
 
         //TODO: Figure out a title
         //TODO: Figure out description for page
