@@ -29,6 +29,12 @@ class BuildCommand extends Command
             ->addArgument('destination',
                 InputArgument::REQUIRED,
                 'The destination folder where the site will be built.'
+            )
+            ->addOption('theme',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'What theme should be used?',
+                'Standard'
             );
     }
 
@@ -37,9 +43,16 @@ class BuildCommand extends Command
 
         //TODO: Set up the theme and validate needed files
 
+        //TODO: set up manifest file for themes for what files should be copied into the folder, like the styles and JS
 
+        //TODO: Move makePathAbosolute from Fiesta\Dir to a util helper so that it can be used here for passed in paths for a theme directory
+        // Set up the theme directory
+        $themeDirectory = $this->getApplication->getBaseDir() . '/themes';
         // Set up Twig template loader
         $twigLoader = new Twig_Loader_Filesystem(__DIR__ . '/../Twig/Templates/Primary');
+
+        //TODO: Validate theme folder is a directory
+        //TODO: Validate the needed base Twig files are there
 
         // Set up the Markdown engine to use PHP League's CommonMark
         $markdownEngine = new MarkdownEngine\PHPLeagueCommonMarkEngine();
