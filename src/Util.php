@@ -35,12 +35,37 @@ class Util
      */
     public static function makePathAbsolute($path)
     {
+        $returnPath = $path;
+
         if (self::isRelativePath($path)) {
             // Make the string absolute
-            $path = getcwd() . "/" . $path;
+            $returnPath = self::appendToPath(getcwd(), $path);
+        }
+        var_dump($returnPath);
+
+        // Return the path
+        return $returnPath;
+    }
+
+    /**
+     * Append to path
+     *
+     * Append an item onto a path checking for trailing directory separator
+     *
+     * @param string $path The path to append to
+     * @param string $addition The portion to add to the path
+     *
+     * @return string
+     */
+    public static function appendToPath($path, $addition)
+    {
+        if (substr($path, -1) != '/' && substr($addition, 1) != '/') {
+            // Return with the additional separator
+            return $path . '/' . $addition;
         }
 
-        return $path;
+        // Return just the appended paths
+        return $path . $addition;
     }
 
 }

@@ -20,10 +20,11 @@ class Application extends ConsoleApplication
 
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
     {
-        parent::__construct($name, $version);
 
         // Set the base directory of the application
         $this->baseDir = realpath(__DIR__ . '/..');
+
+        parent::__construct($name, $version);
     }
 
     /**

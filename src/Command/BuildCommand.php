@@ -15,6 +15,7 @@ use Twig_Environment;
 use Twig_Loader_Filesystem;
 
 use Fiesta\Dir;
+use Fiesta\Util;
 
 class BuildCommand extends Command
 {
@@ -30,6 +31,11 @@ class BuildCommand extends Command
                 InputArgument::REQUIRED,
                 'The destination folder where the site will be built.'
             )
+            ->addOption('theme-dir',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Where are themes located? Defaults to the themes folder contained within the Fiesta source. It can be a relative or absolute folder path.'
+            )
             ->addOption('theme',
                 null,
                 InputOption::VALUE_REQUIRED,
@@ -41,18 +47,33 @@ class BuildCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        //TODO: Set up the theme and validate needed files
-
         //TODO: set up manifest file for themes for what files should be copied into the folder, like the styles and JS
 
-        //TODO: Move makePathAbosolute from Fiesta\Dir to a util helper so that it can be used here for passed in paths for a theme directory
         // Set up the theme directory
-        $themeDirectory = $this->getApplication->getBaseDir() . '/themes';
-        // Set up Twig template loader
-        $twigLoader = new Twig_Loader_Filesystem(__DIR__ . '/../Twig/Templates/Primary');
+        $themeDirectory = $input->getOption('theme-dir');
+
+        // If themes directory option is empty, use default
+        if (!$themeDirectory) {
+            $themeDirectory = Util::appendToPath($this->getApplication()->getBaseDir(), 'themes');
+        }
+        var_dump($themeDirectory);
+
+        // Build the specific theme directory using the theme name
+        $theme = new Dir(Util::appendToPath($themeDirectory, $input->getOption('theme')));
+
+        // Ensure the theme folder exists and is readable
+        if (!$theme->exists() || !$theme->isReadable()) {
+            throw new \RuntimeException("The chosen Theme folder (" . $theme->getPath() . ") doesn't exist or isn't readable");
+        }
+
+        var_dump($theme);
 
         //TODO: Validate theme folder is a directory
         //TODO: Validate the needed base Twig files are there
+
+        // Set up Twig template loader
+        $twigLoader = new Twig_Loader_Filesystem(__DIR__ . '/../Twig/Templates/Primary');
+
 
         // Set up the Markdown engine to use PHP League's CommonMark
         $markdownEngine = new MarkdownEngine\PHPLeagueCommonMarkEngine();
@@ -83,7 +104,7 @@ class BuildCommand extends Command
         $output->writeln('');
 
         if (!$questionHelper->ask($input, $output, $question)) {
-        $output->writeln('<info>Aborting the Build command</info>');
+            $output->writeln('<info>Aborting the Build command</info>');
             return;
         }
 

@@ -2,7 +2,7 @@
 
 namespace Fiesta\Command;
 
-use Symfony\Component\Console\Application;
+use Fiesta\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class BuildCommandTest extends \PHPUnit_Framework_TestCase
