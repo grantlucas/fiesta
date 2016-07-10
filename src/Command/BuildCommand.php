@@ -9,37 +9,52 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Lead\Dir\Dir as DirHelper;
-use League\Container\Container as ServiceContainer;
+use Aptoma\Twig\Extension\MarkdownExtension;
+use Aptoma\Twig\Extension\MarkdownEngine;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
 
 use Fiesta\Dir;
 
 class BuildCommand extends Command
 {
-    protected $serviceManager;
-
-    public function __construct(ServiceContainer $serviceContainer)
-    {
-        parent::__construct();
-
-        $this->serviceManager = $serviceContainer;
-    }
-
     protected function configure()
     {
         $this->setName('build')
-        ->setDescription('Build your Fiesta photo essay.')
-        ->addArgument('source',
-            InputArgument::REQUIRED,
-            'The source folder with your original images.'
-        )
-        ->addArgument('destination',
-            InputArgument::REQUIRED,
-            'The destination folder where the site will be built.'
-        );
+            ->setDescription('Build your Fiesta photo essay.')
+            ->addArgument('source',
+                InputArgument::REQUIRED,
+                'The source folder with your original images.'
+            )
+            ->addArgument('destination',
+                InputArgument::REQUIRED,
+                'The destination folder where the site will be built.'
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
+        //TODO: Set up the theme and validate needed files
+
+
+        // Set up Twig template loader
+        $twigLoader = new Twig_Loader_Filesystem(__DIR__ . '/../Twig/Templates/Primary');
+
+        // Set up the Markdown engine to use PHP League's CommonMark
+        $markdownEngine = new MarkdownEngine\PHPLeagueCommonMarkEngine();
+
+        $twig = new Twig_Environment($twigLoader);
+        //TODO: Add caching and way to clear cache
+
+        // Add markdown extension
+        $twig->addExtension(new MarkdownExtension($markdownEngine));
+
+
+
+
+        /****** Begin with processing ******/
+
         $source = new Dir($input->getArgument('source'), true);
         $destination = new Dir($input->getArgument('destination'));
 
@@ -55,6 +70,7 @@ class BuildCommand extends Command
         $output->writeln('');
 
         if (!$questionHelper->ask($input, $output, $question)) {
+        $output->writeln('<info>Aborting the Build command</info>');
             return;
         }
 
@@ -162,7 +178,7 @@ class BuildCommand extends Command
         print_r($processedFiles);
 
         // Load the template's base file
-        $baseTemplate = $this->serviceManager->get('twig')->loadTemplate('base.html.twig');
+        $baseTemplate = $twig->loadTemplate('base.html.twig');
 
         //TODO: Figure out a title
         //TODO: Figure out description for page

@@ -64,6 +64,30 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test abort execution
+     */
+    public function testAbortExecute()
+    {
+        $application = new Application();
+        $application->add(new BuildCommand());
+
+        $command = $application->find('build');
+
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream('n\\n'));
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'source' => 'tests/files/source',
+            'destination' => '/tmp/2',
+        ]);
+
+        $this->assertRegExp("/Building Site/", $commandTester->getDisplay());
+        $this->assertRegExp("/Aborting the Build command/", $commandTester->getDisplay());
+    }
+
+    /**
      * Test an execution with all arguments
      */
     public function testExecute()
@@ -84,6 +108,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertRegExp("/Building Site/", $commandTester->getDisplay());
+        $this->assertRegExp("/Continuing with Build command/", $commandTester->getDisplay());
     }
 
     protected function getInputStream($input)
