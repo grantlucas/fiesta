@@ -223,7 +223,7 @@ class BuildCommand extends Command
                     $ignoredFiles[] = $counterpartFile;
                 }
 
-                //FIXME: Get this working with just single markdown files
+                //FIXME: Get this working with just single markdown files. Need to support running into EITHER the image or text file first
                 // Add the record to the final array which is eventually passed to Twig
                 $processedFiles[$file] = array(
                     'image' => array(
@@ -245,7 +245,6 @@ class BuildCommand extends Command
 
                     // Add image settings
                     $processedFiles[$file]['image']['settings'] = $imageSettings ?: array();
-
 
                     // Only add the text if the content wasn't empty
                     if ($parsedFile->getContent() != '') {
