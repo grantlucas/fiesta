@@ -13,12 +13,37 @@ use Aptoma\Twig\Extension\MarkdownExtension;
 use Aptoma\Twig\Extension\MarkdownEngine;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
+use Mni\FrontYAML\Parser as MarkdownParser;
 
 use Fiesta\Dir;
 use Fiesta\Util;
 
 class BuildCommand extends Command
 {
+    /**
+     * @var MarkdownParser
+     *
+     * Markdown parser responsible for returning FrontMatter YAML and
+     * Markdown content
+     */
+    protected $markdownParser;
+
+    /**
+     * Constructor
+     *
+     * @param string|null $name
+     */
+    public function __construct($name = null)
+    {
+        parent::__construct($name);
+
+        // Set up the markdown parser
+        $this->markdownParser = new MarkdownParser();
+    }
+
+    /**
+     * Configure
+     */
     protected function configure()
     {
         $this->setName('build')
@@ -44,9 +69,12 @@ class BuildCommand extends Command
             );
     }
 
+    /**
+     * Execute
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        //TODO: set up manifest file for themes for what files should be copied into the folder, like the styles and JS
+        //TODO: set up manifest file for themes for what extra files should be copied into the folder, such as styles and Javascript. It'd be good to have the CSS and JS in only the top level btw
 
         // Set up the theme directory
         $themeDirectory = $input->getOption('theme-dir');
@@ -79,6 +107,11 @@ class BuildCommand extends Command
         $twig = new Twig_Environment($twigLoader);
         //TODO: Add caching and way to clear cache
 
+        /*
+         * TODO: This processing *could* also be done in this script and
+         * instead pass HTML to the view. That way themes are reliant on
+         * calling `| markdown` when rendering the text
+         */
         // Add markdown extension
         $twig->addExtension(new MarkdownExtension(new MarkdownEngine\PHPLeagueCommonMarkEngine()));
 
@@ -129,6 +162,12 @@ class BuildCommand extends Command
         ));
 
         //TODO: Use Scan to get all image files and optimize them
+
+
+
+
+
+
 
         //TODO: ********** The following can be made generic, passing in the current folder we're processing **********
         // Get the "current" directory
@@ -184,6 +223,7 @@ class BuildCommand extends Command
                     $ignoredFiles[] = $counterpartFile;
                 }
 
+                //FIXME: Get this working with just single markdown files
                 // Add the record to the final array which is eventually passed to Twig
                 $processedFiles[$file] = array(
                     'image' => array(
@@ -195,10 +235,22 @@ class BuildCommand extends Command
                 // If there was a counterpart file, add it to the final array
                 if (!empty($counterpartFile)) {
                     var_dump($counterpartFile);
-                    $fileContents = file_get_contents($counterpartFile);
-                    // Only add the text if the file wasn't empty
-                    if ($fileContents != '') {
-                        $processedFiles[$file]['text'] = $fileContents;
+
+                    // Parse the markdown file with potential YAML front matter
+                    $parsedFile = $this->markdownParser->parse(file_get_contents($counterpartFile), false);
+
+                    // Get any image settings from the YAML front matter
+                    $imageSettings = $parsedFile->getYAML();
+                    var_dump($imageSettings);
+
+                    // Add image settings
+                    $processedFiles[$file]['image']['settings'] = $imageSettings ?: array();
+
+
+                    // Only add the text if the content wasn't empty
+                    if ($parsedFile->getContent() != '') {
+                        $processedFiles[$file]['text'] = $parsedFile->getContent();
+                        //TODO: If it wasn't empty, increment the group counter
                     }
                 }
 
@@ -218,8 +270,8 @@ class BuildCommand extends Command
             'files' => $processedFiles,
         ));
 
-        print_r($baseHtml);
-        print_r($curDirectory->getPath());
+        //print_r($baseHtml);
+        //print_r($curDirectory->getPath());
 
         // Create the index.html file with the rendered HTML
         file_put_contents($curDirectory->getPath() . '/index.html', $baseHtml);

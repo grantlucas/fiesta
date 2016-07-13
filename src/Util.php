@@ -41,7 +41,6 @@ class Util
             // Make the string absolute
             $returnPath = self::appendToPath(getcwd(), $path);
         }
-        var_dump($returnPath);
 
         // Return the path
         return $returnPath;

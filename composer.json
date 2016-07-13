@@ -10,9 +10,9 @@
         "symfony/console": "^3.0",
         "crysalead/dir": "^2.0",
         "twig/twig": "^1.24",
-        "league/container": "^2.2",
         "aptoma/twig-markdown": "^2.0",
-        "league/commonmark": "^0.13.4"
+        "league/commonmark": "^0.13.4",
+        "mnapoli/front-yaml": "^1.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.2"
