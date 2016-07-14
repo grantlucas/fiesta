@@ -182,6 +182,22 @@ class BuildCommand extends Command
         // Store which files to ignore in processing
         $ignoredFiles = array();
 
+        // Initialize supported image and markdown extensions
+        $imageExtensions = array(
+            'jpeg',
+            'jpg',
+            'png',
+            'gif',
+        );
+
+        $markdownExtensions = array(
+            'md',
+            'markdown',
+            'mdown',
+            'mkdn',
+            'mdwn',
+            'mkd',
+        );
         //TODO: Only proceed if there were files in the folder
 
         // Loop through the files
@@ -193,63 +209,84 @@ class BuildCommand extends Command
                 var_dump(pathinfo($file));
                 $fileInfo = pathinfo($file);
 
-                $currentIsImage = false;
-                if (in_array($fileInfo['extension'], array('jpeg', 'jpg', 'png', 'gif'))) {
-                    $currentIsImage = true;
+                // Determine if the current file is an image or a markdown file
+                $currentFileType = null;
+                if (in_array($fileInfo['extension'], $imageExtensions)) {
+                    $currentFileType = 'image';
+                } elseif (in_array($fileInfo['extension'], $markdownExtensions)) {
+                    $currentFileType = 'markdown';
                 }
 
-                /****** Look for counterpart file (markdown text). ******/
+                // Initialize counterpart file
                 $counterpartFile = null;
-                $markdownExtensions = array(
-                    'md',
-                    'markdown',
-                    'mdown',
-                    'mkdn',
-                    'mdwn',
-                    'mkd',
-                );
 
-                foreach ($markdownExtensions as $markdownExtension) {
-                    // Only check if we haven't found one yet
-                    if (empty($counterpartFile)) {
-                        // Build the expected Markdown path based on original file name
-                        $markdownFilePath = $fileInfo['dirname'] . '/' . $fileInfo['filename'] . '.' . $markdownExtension;
-                        $counterpartFile = $currentIsImage && file_exists($markdownFilePath) ? $markdownFilePath : false;
+                // If it's an image, add it to the final array and look for counter part file
+                if ($currentFileType == 'image') {
+
+                    // Add the image data to the final array which is eventually passed to Twig
+                    $processedFiles[$file] = array(
+                        'image' => array(
+                            'src' => $file,
+                            'name' => $fileInfo['filename'],
+                        ),
+                    );
+
+                    /****** Look for counterpart file (markdown text). ******/
+                    foreach ($markdownExtensions as $markdownExtension) {
+                        // Only check if we haven't found one yet
+                        if (empty($counterpartFile)) {
+                            // Build the expected Markdown path based on original file name
+                            $markdownFilePath = $fileInfo['dirname'] . '/' . $fileInfo['filename'] . '.' . $markdownExtension;
+                            $counterpartFile = file_exists($markdownFilePath) ? $markdownFilePath : false;
+                        }
                     }
-                }
 
-                // If counterpart found, add it to the ignored files list to prevent processing it again
-                if (!empty($counterpartFile)) {
-                    $ignoredFiles[] = $counterpartFile;
-                }
+                    // If a counterpart is found, add it to the ignored files list to prevent processing it again
+                    if (!empty($counterpartFile)) {
+                        $ignoredFiles[] = $counterpartFile;
+                    }
 
-                //FIXME: Get this working with just single markdown files. Need to support running into EITHER the image or text file first
-                // Add the record to the final array which is eventually passed to Twig
-                $processedFiles[$file] = array(
-                    'image' => array(
-                        'src' => $file,
-                        'name' => $fileInfo['filename'],
-                    ),
-                );
+                    // If there was a counterpart file, add it to the final array
+                    if (!empty($counterpartFile)) {
+                        var_dump($counterpartFile);
 
-                // If there was a counterpart file, add it to the final array
-                if (!empty($counterpartFile)) {
-                    var_dump($counterpartFile);
+                        // Parse the markdown file with potential YAML front matter
+                        $parsedFile = $this->markdownParser->parse(file_get_contents($counterpartFile), false);
 
-                    // Parse the markdown file with potential YAML front matter
-                    $parsedFile = $this->markdownParser->parse(file_get_contents($counterpartFile), false);
+                        // Get any image settings from the YAML front matter
+                        $imageSettings = $parsedFile->getYAML();
+                        var_dump($imageSettings);
 
-                    // Get any image settings from the YAML front matter
-                    $imageSettings = $parsedFile->getYAML();
-                    var_dump($imageSettings);
+                        // Add image settings
+                        $processedFiles[$file]['image']['settings'] = $imageSettings ?: array();
 
-                    // Add image settings
-                    $processedFiles[$file]['image']['settings'] = $imageSettings ?: array();
+                        // Only add the text if the content wasn't empty
+                        if ($parsedFile->getContent() != '') {
+                            $processedFiles[$file]['text'] = $parsedFile->getContent();
+                            //TODO: If it wasn't empty, increment the group counter
+                        }
+                    }
+                } elseif ($currentFileType == 'markdown') {
+                    // Look for counterpart image file
+                    foreach ($imageExtensions as $imageExtension) {
+                        // Only check if we haven't found one yet
+                        if (empty($counterpartFile)) {
+                            // Build the expected image path based on original file name
+                            $imageFilePath = $fileInfo['dirname'] . '/' . $fileInfo['filename'] . '.' . $imageExtension;
+                            $counterpartFile = file_exists($imageFilePath) ? $imageFilePath : false;
+                        }
+                    }
 
-                    // Only add the text if the content wasn't empty
-                    if ($parsedFile->getContent() != '') {
-                        $processedFiles[$file]['text'] = $parsedFile->getContent();
-                        //TODO: If it wasn't empty, increment the group counter
+                    // Only proceed if there ISN'T a counterpart file. It'll be dealt with when its imag is dealt with
+                    if (!$counterpartFile) {
+                        // With no counterpart file found, treat this as a single text block
+                        // Parse the file
+                        $parsedFile = $this->markdownParser->parse(file_get_contents($file), false);
+
+                        // Add the text block to the page
+                        $processedFiles[$file] = array(
+                            'text' => $parsedFile->getContent(),
+                        );
                     }
                 }
 
