@@ -198,7 +198,6 @@ class BuildCommand extends Command
             'mdwn',
             'mkd',
         );
-        //TODO: Only proceed if there were files in the folder
 
         // Loop through the files
         foreach ($files as $file) {

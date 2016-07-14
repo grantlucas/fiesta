@@ -1,4 +1,8 @@
-# Boathouse in Winter
+---
+image-layout: full-width
+---
+
+# Snowy Drive
 
 Aenean lacinia bibendum nulla sed consectetur. Morbi leo risus, porta ac
 consectetur ac, vestibulum at eros. Curabitur blandit tempus porttitor. Donec id
