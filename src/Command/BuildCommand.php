@@ -199,6 +199,9 @@ class BuildCommand extends Command
             'mkd',
         );
 
+        // Initialize group counter
+        $groupCounter = 0;
+
         // Loop through the files
         foreach ($files as $file) {
             echo "\nFile: $file";
@@ -216,14 +219,17 @@ class BuildCommand extends Command
                     $currentFileType = 'markdown';
                 }
 
-                // Initialize counterpart file
+                // Initialize file variables
                 $counterpartFile = null;
+                $processedFile = null;
+
+                // Store whether a file being processed should be in its own group
+                $groupBreak = false;
 
                 // If it's an image, add it to the final array and look for counter part file
                 if ($currentFileType == 'image') {
-
                     // Add the image data to the final array which is eventually passed to Twig
-                    $processedFiles[$file] = array(
+                    $processedFile = array(
                         'image' => array(
                             'src' => $file,
                             'name' => $fileInfo['filename'],
@@ -257,12 +263,19 @@ class BuildCommand extends Command
                         var_dump($imageSettings);
 
                         // Add image settings
-                        $processedFiles[$file]['image']['settings'] = $imageSettings ?: array();
+                        $processedFile['image']['settings'] = $imageSettings ?: array();
+
+                        // Full width images are their own group
+                        if ($imageSettings && isset($imageSettings['image-layout']) && $imageSettings['image-layout'] == 'full-width') {
+                            $groupBreak = true;
+                        }
 
                         // Only add the text if the content wasn't empty
                         if ($parsedFile->getContent() != '') {
-                            $processedFiles[$file]['text'] = $parsedFile->getContent();
-                            //TODO: If it wasn't empty, increment the group counter
+                            $processedFile['text'] = $parsedFile->getContent();
+
+                            // Image file + text will be it's own group
+                            $groupBreak = true;
                         }
                     }
                 } elseif ($currentFileType == 'markdown') {
@@ -283,10 +296,28 @@ class BuildCommand extends Command
                         $parsedFile = $this->markdownParser->parse(file_get_contents($file), false);
 
                         // Add the text block to the page
-                        $processedFiles[$file] = array(
+                        $processedFile = array(
                             'text' => $parsedFile->getContent(),
                         );
+
+                        // Single text files are their own group
+                        $groupBreak = true;
                     }
+                }
+
+                // If we have a group break, increment the counter
+                if ($groupBreak) {
+                    $groupCounter++;
+                }
+
+                //  Add the final image and/or text file to the processed files array
+                $processedFiles[$groupCounter][$file] = $processedFile;
+
+                // If this was a single file for this group, increment the
+                // group counter once again to ensure the next file being
+                // processed doesn't get lumped into this group
+                if ($groupBreak) {
+                    $groupCounter++;
                 }
 
                 //TODO: Remove markdown files
