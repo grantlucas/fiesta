@@ -321,6 +321,8 @@ class BuildCommand extends Command
                 }
 
                 //TODO: Remove markdown files
+
+                //TODO: If the image is full width, add a group class
             }
         }
 
@@ -333,11 +335,11 @@ class BuildCommand extends Command
         //TODO: Figure out description for page
         //TODO: Pass in child menu
         $baseHtml = $baseTemplate->render(array(
-            'files' => $processedFiles,
+            'fileGroups' => $processedFiles,
         ));
 
-        //print_r($baseHtml);
-        //print_r($curDirectory->getPath());
+        print_r($baseHtml);
+        print_r($curDirectory->getPath());
 
         // Create the index.html file with the rendered HTML
         file_put_contents($curDirectory->getPath() . '/index.html', $baseHtml);

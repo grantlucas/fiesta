@@ -1,10 +1,13 @@
-<li>
-  <p>File Name: {{ file.image.name }}</p>
-  <img src="{{ file.image.src }}" alt="{{ file.image.name }}"/>
-
+{% for file in group %}
   {% if file.text is defined %}
-    <div class="description">
-      {{ file.text | markdown}}
-    </div>
+    <section class="description">
+      {{ file.text | markdown }}
+    </section>
   {% endif %}
-</li>
+
+  {% if file.image is defined %}
+    <section class="image">
+      <img src="{{ file.image.src }}" alt="{{ file.image.name }}" title="{{ file.image.name }}"/>
+    </section>
+  {% endif %}
+{% endfor %}

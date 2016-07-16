@@ -6,17 +6,17 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Primary Theme</title>
+    <title>Standard Theme</title>
+
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Merriweather' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="normalize.css" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="styles.css" type="text/css" media="screen" charset="utf-8">
   </head>
   <body>
-    <h1>Primary Theme</h1>
-
-    <h2>Files</h2>
-
-    <ul>
-      {% for file in files %}
-        {% include 'row.html.twig' with {'file': file} only %}
+      {% for group in fileGroups %}
+        <article class="row">
+          {% include 'row.html.twig' with {'group': group} only %}
+        </article>
       {% endfor %}
-    </ul>
   </body>
 </html>
