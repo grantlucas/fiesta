@@ -88,13 +88,6 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid theme
-     *
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage 
-     */
-
-    /**
      * Test an execution with all arguments
      */
     public function testExecute()

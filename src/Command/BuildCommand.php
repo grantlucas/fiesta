@@ -8,6 +8,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Lead\Dir\Dir as DirHelper;
 use Aptoma\Twig\Extension\MarkdownExtension;
 use Aptoma\Twig\Extension\MarkdownEngine;
@@ -74,8 +76,6 @@ class BuildCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        //TODO: set up manifest file for themes for what extra files should be copied into the folder, such as styles and Javascript. It'd be good to have the CSS and JS in only the top level btw
-
         // Set up the theme directory
         $themeDirectory = $input->getOption('theme-dir');
 
@@ -99,7 +99,6 @@ class BuildCommand extends Command
             throw new \RuntimeException("The required Twig base file (" . $twigBaseFile . "), does not exist in the theme folder or is not readable.");
         }
 
-
         // Set up Twig template loader using the theme folder
         $twigLoader = new Twig_Loader_Filesystem($theme->getPath());
 
@@ -115,7 +114,16 @@ class BuildCommand extends Command
         // Add markdown extension
         $twig->addExtension(new MarkdownExtension(new MarkdownEngine\PHPLeagueCommonMarkEngine()));
 
+        // Load the theme Manifest file if it exists
+        // This sets up any files that should be copied to the destination folder
+        $manifestFile = Util::appendToPath($theme->getPath(), 'manifest.yml');
+        $manifest = null;
 
+        if (file_exists($manifestFile)) {
+            $manifest = Yaml::parse(file_get_contents($manifestFile));
+        }
+
+        print_r($manifest);
 
         /****** Begin with processing ******/
 
@@ -163,7 +171,16 @@ class BuildCommand extends Command
 
         //TODO: Use Scan to get all image files and optimize them
 
-
+        // Copy any root theme files to the destination folder
+        if (!empty($manifest['root_files']) && is_array($manifest['root_files'])) {
+            foreach ($manifest['root_files'] as $file) {
+                $filePath = Util::appendToPath($theme->getPath(), $file);
+                if (file_exists($filePath)) {
+                    $destinationFilePath = Util::appendToPath($destination->getPath(), $file);
+                    copy($filePath, $destinationFilePath);
+                }
+            }
+        }
 
 
 
