@@ -359,12 +359,17 @@ class BuildCommand extends Command
                 ],
             ];
 
-            // If there are multiple files in a group, set it to grid
             if (count($processedFiles[$groupId]['files']) > 1) {
+            // If there are multiple files in a group, set it to grid
                 $groupSettings['classes'][] = 'grid';
-            }
+            } elseif (count($processedFiles[$groupId]['files'] == 1)) {
+                // If there was only one file, check if it has a layout, and add that as a class
+                $file = current($processedFiles[$groupId]['files']);
 
-            var_dump($groupSettings);
+                if (isset($file['image']['settings']['image-layout'])) {
+                    $groupSettings['classes'][] = $file['image']['settings']['image-layout'];
+                }
+            }
 
             // Add the group settings
             $processedFiles[$groupId]['settings'] = $groupSettings;

@@ -58,9 +58,11 @@ h1 {
   max-width: 1000px;
 }
 
-.row-full {
+.row.full-width {
   max-width: 100%;
   width: 100%;
+  margin: 0;
+  max-width: none;
 }
 
 .row h1,
@@ -89,12 +91,12 @@ h1 {
   max-width: 100%;
 }
 
-.row-full .image {
+.row.full-width .image {
   width: 100%;
   padding-bottom: 6%;
 }
 
-.row-full .image img {
+.row.full-width .image img {
   width: 100%;
   height: auto;
 }
