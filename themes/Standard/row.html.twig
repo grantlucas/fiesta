@@ -1,4 +1,4 @@
-{% for file in group %}
+{% for file in group.files %}
   {% if file.text is defined %}
     <section class="description">
       {{ file.text | markdown }}

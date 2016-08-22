@@ -236,6 +236,11 @@ class BuildCommand extends Command
                     $currentFileType = 'markdown';
                 }
 
+                // If this file isn't a markdown or image file, ignore it
+                if (!in_array($currentFileType, ['image', 'markdown'])) {
+                    continue;
+                }
+
                 // Initialize file variables
                 $counterpartFile = null;
                 $processedFile = null;
@@ -278,6 +283,8 @@ class BuildCommand extends Command
                         // Get any image settings from the YAML front matter
                         $imageSettings = $parsedFile->getYAML();
                         var_dump($imageSettings);
+
+                        // TODO: Determine if this is a full width image, and if so, add the class toe the group
 
                         // Add image settings
                         $processedFile['image']['settings'] = $imageSettings ?: array();
@@ -322,17 +329,18 @@ class BuildCommand extends Command
                     }
                 }
 
-                // If we have a group break, increment the counter
+                // If we have a group break, increment the counter and process group settings
                 if ($groupBreak) {
                     $groupCounter++;
+
                 }
 
-                //  Add the final image and/or text file to the processed files array
-                $processedFiles[$groupCounter][$file] = $processedFile;
+                // Add the final image and/or text file to the processed files array
+                $processedFiles[$groupCounter]['files'][$file] = $processedFile;
 
-                // If this was a single file for this group, increment the
-                // group counter once again to ensure the next file being
-                // processed doesn't get lumped into this group
+                // Increment the counter one more time incase there was only
+                // one file in the group. This prevents the first file of the
+                // next group from being lumped into this group
                 if ($groupBreak) {
                     $groupCounter++;
                 }
@@ -342,6 +350,26 @@ class BuildCommand extends Command
                 //TODO: If the image is full width, add a group class
             }
         }
+
+        // Loop through the groups and create group settings
+        foreach ($processedFiles as $groupId => $group) {
+            $groupSettings = [
+                'classes' => [
+                    'row'
+                ],
+            ];
+
+            // If there are multiple files in a group, set it to grid
+            if (count($processedFiles[$groupId]['files']) > 1) {
+                $groupSettings['classes'][] = 'grid';
+            }
+
+            var_dump($groupSettings);
+
+            // Add the group settings
+            $processedFiles[$groupId]['settings'] = $groupSettings;
+        }
+
 
         print_r($processedFiles);
 
