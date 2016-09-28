@@ -1,3 +1,4 @@
 root_files:
   - normalize.css
   - styles.css
+  - row-grid.min.js

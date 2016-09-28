@@ -14,9 +14,26 @@
   </head>
   <body>
       {% for group in fileGroups %}
-        <article class="{{ group.settings.classes|join(' ') }}">
+        <article class="clearfix {{ group.settings.classes|join(' ') }}">
           {% include 'row.html.twig' with {'group': group} only %}
         </article>
       {% endfor %}
+
+      <script src="row-grid.min.js"></script>
+      <script>
+        document.addEventListener('DOMContentLoaded', function(){
+          /* Start rowGrid.js */
+          var container = document.getElementsByClassName('grid')[0];
+          rowGrid(container, {
+            itemSelector: '.grid-item',
+            minMargin: 10,
+            maxMargin: 25,
+            firstItemClass: 'first-item',
+            lastRowClass: 'last-row',
+            resize: true,
+            minWidth: 500
+          });
+        });
+      </script>
   </body>
 </html>

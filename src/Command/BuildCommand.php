@@ -383,6 +383,7 @@ class BuildCommand extends Command
 
         //TODO: Figure out a title
         //TODO: Figure out description for page
+        //TODO: Add lightbox support to theme
         //TODO: Pass in child menu
         $baseHtml = $baseTemplate->render(array(
             'fileGroups' => $processedFiles,

@@ -6,7 +6,7 @@
   {% endif %}
 
   {% if file.image is defined %}
-    <section class="image">
+    <section class="image {% if 'grid' in group.settings.classes %}grid-item{% endif%}">
       <img src="{{ file.image.src }}" alt="{{ file.image.name }}" title="{{ file.image.name }}"/>
     </section>
   {% endif %}
