@@ -185,7 +185,6 @@ class BuildCommand extends Command
 
 
 
-
         //TODO: ********** The following can be made generic, passing in the current folder we're processing **********
         // Get the "current" directory
         $curDirectory = new Dir($destination->getPath());
@@ -284,8 +283,6 @@ class BuildCommand extends Command
                         $imageSettings = $parsedFile->getYAML();
                         var_dump($imageSettings);
 
-                        // TODO: Determine if this is a full width image, and if so, add the class toe the group
-
                         // Add image settings
                         $processedFile['image']['settings'] = $imageSettings ?: array();
 
@@ -344,10 +341,6 @@ class BuildCommand extends Command
                 if ($groupBreak) {
                     $groupCounter++;
                 }
-
-                //TODO: Remove markdown files
-
-                //TODO: If the image is full width, add a group class
             }
         }
 
@@ -381,10 +374,6 @@ class BuildCommand extends Command
         // Load the template's base file
         $baseTemplate = $twig->loadTemplate($twigBaseFile);
 
-        //TODO: Figure out a title
-        //TODO: Figure out description for page
-        //TODO: Add lightbox support to theme
-        //TODO: Pass in child menu
         $baseHtml = $baseTemplate->render(array(
             'fileGroups' => $processedFiles,
         ));
