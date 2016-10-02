@@ -63,10 +63,10 @@ class DirTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($files);
 
         // Assert the various files and directories knowing their sort order
-        $this->assertEquals("Boathouse in Winter.jpeg", $this->getFileName($files[0]));
-        $this->assertEquals("Boathouse in Winter.md", $this->getFileName($files[1]));
-        $this->assertEquals("Single Block of Text.md", $this->getFileName($files[2]));
-        $this->assertEquals("Ski Lodge.jpeg", $this->getFileName($files[3]));
+        $this->assertEquals("1_Snowy_Drive.jpg", $this->getFileName($files[0]));
+        $this->assertEquals("1_Snowy_Drive.md", $this->getFileName($files[1]));
+        $this->assertEquals("2_Log_Shed.jpg", $this->getFileName($files[2]));
+        $this->assertEquals("2_Log_Shed.md", $this->getFileName($files[3]));
     }
 
     /**
