@@ -8,28 +8,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\Yaml\Exception\ParseException;
 use Lead\Dir\Dir as DirHelper;
-use Aptoma\Twig\Extension\MarkdownExtension;
-use Aptoma\Twig\Extension\MarkdownEngine;
-use Twig_Environment;
-use Twig_Loader_Filesystem;
-use Mni\FrontYAML\Parser as MarkdownParser;
 
 use Fiesta\Dir;
 use Fiesta\Util;
+use Fiesta\Processor;
 
 class BuildCommand extends Command
 {
-    /**
-     * @var MarkdownParser
-     *
-     * Markdown parser responsible for returning FrontMatter YAML and
-     * Markdown content
-     */
-    protected $markdownParser;
-
     /**
      * Constructor
      *
@@ -38,9 +24,6 @@ class BuildCommand extends Command
     public function __construct($name = null)
     {
         parent::__construct($name);
-
-        // Set up the markdown parser
-        $this->markdownParser = new MarkdownParser();
     }
 
     /**
@@ -99,31 +82,8 @@ class BuildCommand extends Command
             throw new \RuntimeException("The required Twig base file (" . $twigBaseFile . "), does not exist in the theme folder or is not readable.");
         }
 
-        // Set up Twig template loader using the theme folder
-        $twigLoader = new Twig_Loader_Filesystem($theme->getPath());
+        /****** THEME is validated by now ******/
 
-        // Set up the twig environment using the theme's folder
-        $twig = new Twig_Environment($twigLoader);
-        //TODO: Add caching and way to clear cache
-
-        /*
-         * TODO: This processing *could* also be done in this script and
-         * instead pass HTML to the view. That way themes are reliant on
-         * calling `| markdown` when rendering the text
-         */
-        // Add markdown extension
-        $twig->addExtension(new MarkdownExtension(new MarkdownEngine\PHPLeagueCommonMarkEngine()));
-
-        // Load the theme Manifest file if it exists
-        // This sets up any files that should be copied to the destination folder
-        $manifestFile = Util::appendToPath($theme->getPath(), 'manifest.yml');
-        $manifest = null;
-
-        if (file_exists($manifestFile)) {
-            $manifest = Yaml::parse(file_get_contents($manifestFile));
-        }
-
-        print_r($manifest);
 
         /****** Begin with processing ******/
 
@@ -161,230 +121,11 @@ class BuildCommand extends Command
             throw new \RuntimeException("Destination directory is not writable");
         }
 
-        // Copy entire source to destination with callbacks
-        //TODO: Get it to ignore .DS_Store files etc: https://github.com/crysalead/dir/issues/1
-        DirHelper::copy($source->getPath(), $destination->getPath(), array(
-            'mode' => 0700,
-            'childsOnly' => true,
-            'recursive' => true,
-        ));
+        /****** Initial destination folder should be good to go ******/
 
-        //TODO: Use Scan to get all image files and optimize them
-
-        // Copy any root theme files to the destination folder
-        if (!empty($manifest['root_files']) && is_array($manifest['root_files'])) {
-            foreach ($manifest['root_files'] as $file) {
-                $filePath = Util::appendToPath($theme->getPath(), $file);
-                if (file_exists($filePath)) {
-                    $destinationFilePath = Util::appendToPath($destination->getPath(), $file);
-                    copy($filePath, $destinationFilePath);
-                }
-            }
-        }
-
-
-
-
-        //TODO: ********** The following can be made generic, passing in the current folder we're processing **********
-        // Get the "current" directory
-        $curDirectory = new Dir($destination->getPath());
-
-        // Get list of files to loop through
-        $files = $curDirectory->getFiles();
-
-        // Store processed file information for rendering
-        $processedFiles = array();
-
-        // Store which files to ignore in processing
-        $ignoredFiles = array();
-
-        // Initialize supported image and markdown extensions
-        $imageExtensions = array(
-            'jpeg',
-            'jpg',
-            'png',
-            'gif',
-        );
-
-        $markdownExtensions = array(
-            'md',
-            'markdown',
-            'mdown',
-            'mkdn',
-            'mdwn',
-            'mkd',
-        );
-
-        // Initialize group counter
-        $groupCounter = 0;
-
-        // Loop through the files
-        foreach ($files as $file) {
-            echo "\nFile: $file";
-
-            // Only proceed if this file isn't ignored
-            if (!in_array($file, $ignoredFiles)) {
-                var_dump(pathinfo($file));
-                $fileInfo = pathinfo($file);
-
-                // Determine if the current file is an image or a markdown file
-                $currentFileType = null;
-                if (in_array($fileInfo['extension'], $imageExtensions)) {
-                    $currentFileType = 'image';
-                } elseif (in_array($fileInfo['extension'], $markdownExtensions)) {
-                    $currentFileType = 'markdown';
-                }
-
-                // If this file isn't a markdown or image file, ignore it
-                if (!in_array($currentFileType, ['image', 'markdown'])) {
-                    continue;
-                }
-
-                // Initialize file variables
-                $counterpartFile = null;
-                $processedFile = null;
-
-                // Store whether a file being processed should be in its own group
-                $groupBreak = false;
-
-                // If it's an image, add it to the final array and look for counter part file
-                if ($currentFileType == 'image') {
-                    // Add the image data to the final array which is eventually passed to Twig
-                    $processedFile = array(
-                        'image' => array(
-                            'src' => $file,
-                            'name' => $fileInfo['filename'],
-                        ),
-                    );
-
-                    /****** Look for counterpart file (markdown text). ******/
-                    foreach ($markdownExtensions as $markdownExtension) {
-                        // Only check if we haven't found one yet
-                        if (empty($counterpartFile)) {
-                            // Build the expected Markdown path based on original file name
-                            $markdownFilePath = $fileInfo['dirname'] . '/' . $fileInfo['filename'] . '.' . $markdownExtension;
-                            $counterpartFile = file_exists($markdownFilePath) ? $markdownFilePath : false;
-                        }
-                    }
-
-                    // If a counterpart is found, add it to the ignored files list to prevent processing it again
-                    if (!empty($counterpartFile)) {
-                        $ignoredFiles[] = $counterpartFile;
-                    }
-
-                    // If there was a counterpart file, add it to the final array
-                    if (!empty($counterpartFile)) {
-                        var_dump($counterpartFile);
-
-                        // Parse the markdown file with potential YAML front matter
-                        $parsedFile = $this->markdownParser->parse(file_get_contents($counterpartFile), false);
-
-                        // Get any image settings from the YAML front matter
-                        $imageSettings = $parsedFile->getYAML();
-                        var_dump($imageSettings);
-
-                        // Add image settings
-                        $processedFile['image']['settings'] = $imageSettings ?: array();
-
-                        // Full width images are their own group
-                        if ($imageSettings && isset($imageSettings['image-layout']) && $imageSettings['image-layout'] == 'full-width') {
-                            $groupBreak = true;
-                        }
-
-                        // Only add the text if the content wasn't empty
-                        if ($parsedFile->getContent() != '') {
-                            $processedFile['text'] = $parsedFile->getContent();
-
-                            // Image file + text will be it's own group
-                            $groupBreak = true;
-                        }
-                    }
-                } elseif ($currentFileType == 'markdown') {
-                    // Look for counterpart image file
-                    foreach ($imageExtensions as $imageExtension) {
-                        // Only check if we haven't found one yet
-                        if (empty($counterpartFile)) {
-                            // Build the expected image path based on original file name
-                            $imageFilePath = $fileInfo['dirname'] . '/' . $fileInfo['filename'] . '.' . $imageExtension;
-                            $counterpartFile = file_exists($imageFilePath) ? $imageFilePath : false;
-                        }
-                    }
-
-                    // Only proceed if there ISN'T a counterpart file. It'll be dealt with when its imag is dealt with
-                    if (!$counterpartFile) {
-                        // With no counterpart file found, treat this as a single text block
-                        // Parse the file
-                        $parsedFile = $this->markdownParser->parse(file_get_contents($file), false);
-
-                        // Add the text block to the page
-                        $processedFile = array(
-                            'text' => $parsedFile->getContent(),
-                        );
-
-                        // Single text files are their own group
-                        $groupBreak = true;
-                    }
-                }
-
-                // If we have a group break, increment the counter and process group settings
-                if ($groupBreak) {
-                    $groupCounter++;
-
-                }
-
-                // Add the final image and/or text file to the processed files array
-                $processedFiles[$groupCounter]['files'][$file] = $processedFile;
-
-                // Increment the counter one more time incase there was only
-                // one file in the group. This prevents the first file of the
-                // next group from being lumped into this group
-                if ($groupBreak) {
-                    $groupCounter++;
-                }
-            }
-        }
-
-        // Loop through the groups and create group settings
-        foreach ($processedFiles as $groupId => $group) {
-            $groupSettings = [
-                'classes' => [
-                    'row'
-                ],
-            ];
-
-            if (count($processedFiles[$groupId]['files']) > 1) {
-            // If there are multiple files in a group, set it to grid
-                $groupSettings['classes'][] = 'grid';
-            } elseif (count($processedFiles[$groupId]['files'] == 1)) {
-                // If there was only one file, check if it has a layout, and add that as a class
-                $file = current($processedFiles[$groupId]['files']);
-
-                if (isset($file['image']['settings']['image-layout'])) {
-                    $groupSettings['classes'][] = $file['image']['settings']['image-layout'];
-                }
-            }
-
-            // Add the group settings
-            $processedFiles[$groupId]['settings'] = $groupSettings;
-        }
-
-
-        print_r($processedFiles);
-
-        // Load the template's base file
-        $baseTemplate = $twig->loadTemplate($twigBaseFile);
-
-        $baseHtml = $baseTemplate->render(array(
-            'fileGroups' => $processedFiles,
-        ));
-
-        print_r($baseHtml);
-        print_r($curDirectory->getPath());
-
-        // Create the index.html file with the rendered HTML
-        file_put_contents($curDirectory->getPath() . '/index.html', $baseHtml);
-
-        //TODO: THE HARD PART: After we'de done with this folder, get all child folders and perform the same. This should be recursive.
+        // Kick off the recursive processing which copies files and builds
+        // index.html files
+        $processor = new Processor($theme);
+        $processor->buildIndexFile($source, $destination);
     }
-
 }
