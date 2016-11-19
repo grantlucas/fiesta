@@ -13,11 +13,9 @@
     <link rel="stylesheet" href="styles.css" type="text/css" media="screen" charset="utf-8">
   </head>
   <body>
-      {% for group in fileGroups %}
-        <article class="clearfix {{ group.settings.classes|join(' ') }}">
-          {% include 'row.html.twig' with {'group': group} only %}
-        </article>
-      {% endfor %}
+
+      <!-- Add the Essay HTML here -->
+      <!-- Add the folder gallery HTML here -->
 
       <script src="row-grid.min.js"></script>
       <script>

@@ -84,12 +84,20 @@ class BuildCommand extends Command
             throw new \RuntimeException("The chosen Theme folder (" . $theme->getPath() . ") doesn't exist or isn't readable");
         }
 
-        // Validate the needed base Twig file exists and is readable
-        $twigBaseFile = 'base.html.twig';
-        $twigBaseFilePath = Util::appendToPath($theme->getPath(), $twigBaseFile);
-        if (!is_file($twigBaseFilePath) || !is_readable($twigBaseFilePath)) {
-            throw new \RuntimeException("The required Twig base file (" . $twigBaseFile . "), does not exist in the theme folder or is not readable.");
+        // Validate the needed base Twig files exist and are readable
+        $twigBaseFiles = [
+            'page.html.twig',
+            'essay.html.twig',
+            'folderGallery.html.twig',
+        ];
+
+        foreach ($twigBaseFiles as $file) {
+            $filePath = Util::appendToPath($theme->getPath(), $file);
+            if (!is_file($filePath) || !is_readable($filePath)) {
+                throw new \RuntimeException("The required Twig file (" . $file . "), does not exist in the theme folder or is not readable.");
+            }
         }
+
 
         /****** THEME is validated by now ******/
 

@@ -1,0 +1,5 @@
+{% for group in fileGroups %}
+  <article class="clearfix {{ group.settings.classes|join(' ') }}">
+    {% include 'row.html.twig' with {'group': group} only %}
+  </article>
+{% endfor %}
