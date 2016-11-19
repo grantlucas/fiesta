@@ -3,10 +3,6 @@
 namespace Fiesta;
 
 use Mni\FrontYAML\Parser as MarkdownParser;
-use Twig_Environment;
-use Twig_Loader_Filesystem;
-use Aptoma\Twig\Extension\MarkdownExtension;
-use Aptoma\Twig\Extension\MarkdownEngine;
 use Lead\Dir\Dir as DirHelper;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -55,54 +51,32 @@ class Processor
     /**
      * Constructor
      *
-     * @param Dir $themeDir Directory that the theme is in
+     * @param \Twig_Environment $twig
+     * @param Dir $themeDir Base folder of the theme
+     * @param string $themeManifest Directory that the theme is in
      */
-    public function __construct(Dir $themeDir)
+    public function __construct(\Twig_Environment $twig, Dir $themeDir, $themeManifest)
     {
+        $this->twig = $twig;
         $this->themeDir = $themeDir;
-
-        // Set up Twig template loader using the theme folder
-        $twigLoader = new Twig_Loader_Filesystem($themeDir->getPath());
-
-        // Set up the twig environment using the theme's folder
-        $this->twig = new Twig_Environment($twigLoader);
-        //TODO: Add caching and way to clear cache
-
-        /*
-         * TODO: This processing *could* also be done in this script and
-         * instead pass HTML to the view. That way themes are reliant on
-         * calling `| markdown` when rendering the text
-         */
-        // Add markdown extension
-        $this->twig->addExtension(new MarkdownExtension(new MarkdownEngine\PHPLeagueCommonMarkEngine()));
-
-        // Load the theme Manifest file if it exists
-        // This sets up any files that should be copied to the destination folder
-        $manifestFile = Util::appendToPath($themeDir->getPath(), 'manifest.yml');
-        $manifest = null;
-
-        if (file_exists($manifestFile)) {
-            $manifest = Yaml::parse(file_get_contents($manifestFile));
-        }
-        print_r($manifest);
-
-        $this->themeManifest = $manifest;
+        $this->themeManifest = $themeManifest;
 
         // Set up the markdown parser
+        //TODO: Move this to service?
         $this->markdownParser = new MarkdownParser();
     }
 
     /**
-     * Build Index File
+     * Build
      *
-     * Build the index file for the passed in directory. No data is returned, instead the index file is written.
+     * Recursively build the pages for each directory
      *
      * @param Dir $sourceDir Directory to pull files from
      * @param Dir $targetDir Directory to build the page in
      */
-    public function buildIndexFile(Dir $sourceDir, Dir $targetDir)
+    public function build(Dir $sourceDir, Dir $targetDir)
     {
-        // Copy files from the source to the target
+        // Start with copying the files from the source to the target
         $this->copyFiles($sourceDir, $targetDir);
 
         // Perform processing and build index file in the target directory

@@ -8,7 +8,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
 use Lead\Dir\Dir as DirHelper;
+
+use Twig_Environment;
+use Twig_Loader_Filesystem;
+use Aptoma\Twig\Extension\MarkdownExtension;
+use Aptoma\Twig\Extension\MarkdownEngine;
 
 use Fiesta\Dir;
 use Fiesta\Util;
@@ -123,9 +132,39 @@ class BuildCommand extends Command
 
         /****** Initial destination folder should be good to go ******/
 
+        // Set up the Twig environment to pass to the processor
+
+        // Set up Twig template loader using the theme folder
+        $twigLoader = new Twig_Loader_Filesystem($theme->getPath());
+
+        // Set up the twig environment using the theme's folder
+        $twig = new Twig_Environment($twigLoader);
+        //TODO: Add caching and way to clear cache
+
+        /*
+         * TODO: This processing *could* also be done in this script and
+         * instead pass HTML to the view. That way themes are reliant on
+         * calling `| markdown` when rendering the text
+         */
+        // Add markdown extension
+        $twig->addExtension(new MarkdownExtension(new MarkdownEngine\PHPLeagueCommonMarkEngine()));
+
+        // Load the theme Manifest file for the theme if it exists
+        // This sets up any files that should be copied to the destination folder
+        $manifestFile = Util::appendToPath($theme->getPath(), 'manifest.yml');
+        $themeManifest = null;
+
+        if (file_exists($manifestFile)) {
+            $themeManifest = Yaml::parse(file_get_contents($manifestFile));
+        }
+        print_r($themeManifest);
+
+        $this->themeManifest = $themeManifest;
+
+
         // Kick off the recursive processing which copies files and builds
         // index.html files
-        $processor = new Processor($theme);
-        $processor->buildIndexFile($source, $destination);
+        $processor = new Processor($twig, $theme, $themeManifest);
+        $processor->build($source, $destination);
     }
 }
